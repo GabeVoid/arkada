@@ -1,0 +1,246 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --accent-color: #0D9488;
+  --focus-color: #0D9488;
+  --icon-check: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'></polyline></svg>");
+  --icon-dash: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'><line x1='5' y1='12' x2='19' y2='12'></line></svg>");
+}
+
+html,
+body {
+  background-color: #F8FAFC;
+  color: #0F172A;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Native modal dialog scroll containment per modern-web-guidance */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+/* Custom accessible checkbox per modern-web-guidance (checkbox guide) */
+.checkbox-custom {
+  --checkbox-size: 1.5em;
+  --checkbox-icon-size: 0.85em;
+
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-grid;
+  place-content: center;
+  inline-size: var(--checkbox-size);
+  aspect-ratio: 1;
+  margin: 0;
+  border: 2px solid #94A3B8;
+  border-radius: 0.5rem;
+  background-color: #FFFFFF;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.checkbox-custom::before {
+  content: "";
+  inline-size: var(--checkbox-icon-size);
+  aspect-ratio: 1;
+  background-color: currentColor;
+  mask: var(--checkbox-icon) no-repeat center / contain;
+  -webkit-mask: var(--checkbox-icon) no-repeat center / contain;
+  scale: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .checkbox-custom::before {
+    transition: scale 150ms ease;
+  }
+}
+
+@media (forced-colors: active) {
+  .checkbox-custom::before {
+    background-color: CanvasText;
+  }
+}
+
+.checkbox-custom:checked {
+  --checkbox-icon: var(--icon-check);
+  background-color: #0D9488;
+  border-color: #0D9488;
+  color: #FFFFFF;
+}
+
+.checkbox-custom:indeterminate {
+  --checkbox-icon: var(--icon-dash);
+  background-color: #0D9488;
+  border-color: #0D9488;
+}
+
+.checkbox-custom:is(:checked, :indeterminate)::before {
+  scale: 1;
+}
+
+.checkbox-custom:focus-visible {
+  outline: 2px solid #0D9488;
+  outline-offset: 2px;
+}
+
+.checkbox-custom:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Flat accessible switch control (input[type="checkbox"][switch]) */
+input[type="checkbox"][switch].arkada-switch {
+  accent-color: var(--accent-color, #0D9488);
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 52px;
+  height: 30px;
+  border-radius: 9999px;
+  background-color: #E2E8F0;
+  border: 1px solid #CBD5E1;
+  margin: 0;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+input[type="checkbox"][switch].arkada-switch::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  transition: transform 150ms ease, border-color 150ms ease;
+}
+
+input[type="checkbox"][switch].arkada-switch:checked {
+  background-color: #0D9488;
+  border-color: #0D9488;
+}
+
+input[type="checkbox"][switch].arkada-switch:checked::before {
+  transform: translateX(22px);
+  border-color: #0D9488;
+}
+
+input[type="checkbox"][switch].arkada-switch:focus-visible {
+  outline: 3px solid var(--focus-color, #0D9488);
+  outline-offset: 4px;
+}
+
+/* Brand-consistent Flat Range Slider per modern-web-guidance (slider guide) */
+input[type="range"].arkada-slider {
+  --slider-track-size: 0.625rem;
+  --slider-thumb-size: 1.5rem;
+  --slider-track-radius: 999px;
+  --slider-thumb-radius: 50%;
+  --slider-track-color: #E2E8F0;
+  --slider-fill-color: #0D9488;
+  --slider-thumb-color: var(--slider-fill-color);
+  --slider-direction: to right;
+
+  --attr-min: attr(min type(<number>), 2);
+  --attr-max: attr(max type(<number>), 5);
+  --control-value: attr(value type(<number>), 3);
+  --slider-progress: calc(
+    progress(var(--control-value), var(--attr-min), var(--attr-max)) * 100%
+  );
+
+  appearance: none;
+  -webkit-appearance: none;
+  inline-size: 100%;
+  block-size: 2.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"].arkada-slider:dir(rtl) {
+  --slider-direction: to left;
+}
+
+@supports not (opacity: progress(1, 0, 100)) {
+  input[type="range"].arkada-slider {
+    --slider-progress: calc(
+      (var(--control-value) - var(--attr-min)) /
+      (var(--attr-max) - var(--attr-min)) * 100%
+    );
+  }
+}
+
+/* WebKit/Blink range slider */
+input[type="range"].arkada-slider::-webkit-slider-runnable-track {
+  block-size: var(--slider-track-size);
+  border: 0;
+  border-radius: var(--slider-track-radius);
+  background: linear-gradient(
+    var(--slider-direction),
+    var(--slider-fill-color) var(--slider-progress),
+    var(--slider-track-color) var(--slider-progress)
+  );
+}
+
+input[type="range"].arkada-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  inline-size: var(--slider-thumb-size);
+  block-size: var(--slider-thumb-size);
+  margin-block-start: calc(
+    (var(--slider-track-size) - var(--slider-thumb-size)) / 2
+  );
+  border: 2px solid #FFFFFF;
+  border-radius: var(--slider-thumb-radius);
+  background: var(--slider-thumb-color);
+}
+
+/* Firefox range slider */
+input[type="range"].arkada-slider::-moz-range-track {
+  block-size: var(--slider-track-size);
+  border: 0;
+  border-radius: var(--slider-track-radius);
+  background: var(--slider-track-color);
+}
+
+input[type="range"].arkada-slider::-moz-range-progress {
+  block-size: var(--slider-track-size);
+  border-radius: var(--slider-track-radius);
+  background: var(--slider-fill-color);
+}
+
+input[type="range"].arkada-slider::-moz-range-thumb {
+  inline-size: var(--slider-thumb-size);
+  block-size: var(--slider-thumb-size);
+  border: 2px solid #FFFFFF;
+  border-radius: var(--slider-thumb-radius);
+  background: var(--slider-thumb-color);
+}
+
+input[type="range"].arkada-slider:focus-visible {
+  outline: 2px solid var(--slider-fill-color);
+  outline-offset: 4px;
+}
+
+/* Ensure time inputs remain accessible and well-sized on mobile */
+input[type="time"] {
+  font: inherit;
+  font-size: max(1rem, 1em);
+  box-sizing: border-box;
+}

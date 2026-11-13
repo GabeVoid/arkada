@@ -1,0 +1,54 @@
+{
+  "name": "arkada",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "GabeVoid",
+  "type": "module",
+  "description": "Arkada — Aplicativo Android open-source de acompanhamento e rotina de higiene bucal",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GabeVoid/arkada.git"
+  },
+  "keywords": [
+    "oral-health",
+    "dental-care",
+    "habit-tracker",
+    "capacitor",
+    "android",
+    "react",
+    "typescript",
+    "tailwindcss"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "cap:sync": "cap sync android",
+    "cap:open": "cap open android",
+    "android:build": "npm run build && npx cap sync android",
+    "apk:debug": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/haptics": "^6.0.0",
+    "@capacitor/local-notifications": "^6.0.0",
+    "@capacitor/preferences": "^6.0.0",
+    "@capawesome/capacitor-badge": "^6.0.0",
+    "lucide-react": "^0.460.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "typescript": "~5.6.2",
+    "vite": "^5.4.11"
+  }
+}
