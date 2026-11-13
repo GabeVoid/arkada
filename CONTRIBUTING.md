@@ -24,3 +24,4 @@ Obrigado pelo interesse em contribuir com o **Arkada**! Este projeto é open-sou
    - **Light Mode:** Contraste limpo usando a paleta `slate`, `teal`, `sky` e `amber`.
    - **Acessibilidade:** Utilize elementos HTML semânticos (`<dialog>`, `<input type="range">`, `<input type="checkbox" switch>`, `<fieldset>`/`<legend>`) e mantenha áreas de toque mínimas de `44px`/`48px`.
 6. Faça o commit das suas alterações e envie um **Pull Request**.
+
