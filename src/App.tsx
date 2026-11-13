@@ -6,9 +6,17 @@ import { Onboarding } from './pages/Onboarding';
 import { Home } from './pages/Home';
 import { Session } from './pages/Session';
 import { Settings } from './pages/Settings';
+import { DisclaimerDialog } from './components/DisclaimerDialog';
 
 const ArkadaAppContent: React.FC = () => {
-  const { isLoading, screen, toastMessage, clearToast } = useArkadaStore();
+  const {
+    isLoading,
+    screen,
+    settings,
+    toastMessage,
+    clearToast,
+    acceptDisclaimer
+  } = useArkadaStore();
 
   useEffect(() => {
     if (!toastMessage) return;
@@ -57,6 +65,12 @@ const ArkadaAppContent: React.FC = () => {
       {screen === 'home' && <Home />}
       {screen === 'session' && <Session />}
       {screen === 'settings' && <Settings />}
+
+      {/* First-Use Professional Responsibility Disclaimer */}
+      <DisclaimerDialog
+        open={!settings.disclaimerAccepted}
+        onAccept={() => void acceptDisclaimer()}
+      />
     </div>
   );
 };

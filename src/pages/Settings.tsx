@@ -4,6 +4,7 @@ import {
   Bell,
   Check,
   Clock,
+  Droplets,
   Timer
 } from 'lucide-react';
 import { Button } from '../components/Button';
@@ -12,7 +13,11 @@ import { Switch } from '../components/Switch';
 import { useArkadaStore } from '../hooks/useArkadaStore';
 import { adjustScheduledSlots } from '../services/storage';
 import { triggerQuadrantHaptic } from '../services/haptics';
-import { BrushingDurationSeconds, BrushingSlotConfig } from '../types';
+import {
+  BrushingDurationSeconds,
+  BrushingSlotConfig,
+  MouthwashDurationSeconds
+} from '../types';
 
 export const Settings: React.FC = () => {
   const {
@@ -29,6 +34,9 @@ export const Settings: React.FC = () => {
   );
   const [brushingDuration, setBrushingDuration] = useState<BrushingDurationSeconds>(
     settings.brushingDuration
+  );
+  const [mouthwashDuration, setMouthwashDuration] = useState<MouthwashDurationSeconds>(
+    settings.mouthwashDuration
   );
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(
     settings.notificationsEnabled
@@ -66,6 +74,12 @@ export const Settings: React.FC = () => {
     setBrushingDuration(seconds);
   };
 
+  const handleMouthwashSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const seconds = Number.parseInt(e.target.value, 10) as MouthwashDurationSeconds;
+    void triggerQuadrantHaptic();
+    setMouthwashDuration(seconds);
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     await updateSettings({
@@ -73,6 +87,7 @@ export const Settings: React.FC = () => {
       scheduledSlots,
       scheduledTimes: scheduledSlots.map((s) => s.time),
       brushingDuration,
+      mouthwashDuration,
       mouthwashEnabled: scheduledSlots.some((s) => s.mouthwash),
       notificationsEnabled
     });
@@ -289,7 +304,73 @@ export const Settings: React.FC = () => {
             </div>
           </Card>
 
-          {/* 3. Lembretes */}
+          {/* 3. Tempo do Enxaguante Bucal (Range Slider de 30 a 60 segundos) */}
+          <Card padding="md" className="space-y-3.5">
+            <div className="flex items-center justify-between gap-2.5 pb-3 border-b border-slate-200">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center shrink-0">
+                  <Droplets className="w-4 h-4" aria-hidden="true" />
+                </div>
+                <div>
+                  <label
+                    htmlFor="mouthwash-duration-slider"
+                    className="text-sm font-extrabold text-slate-900 block cursor-pointer"
+                  >
+                    Tempo do Enxaguante
+                  </label>
+                  <p className="text-xs text-slate-600">
+                    Duração do bochecho na etapa de enxaguante
+                  </p>
+                </div>
+              </div>
+
+              <span className="px-3 py-1.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-800 font-extrabold text-sm shrink-0">
+                {mouthwashDuration}s
+              </span>
+            </div>
+
+            <div className="pt-1">
+              <input
+                id="mouthwash-duration-slider"
+                name="mouthwash_duration_seconds"
+                type="range"
+                min={30}
+                max={60}
+                step={5}
+                value={mouthwashDuration}
+                aria-valuetext={`${mouthwashDuration} segundos`}
+                onChange={handleMouthwashSliderChange}
+                style={
+                  {
+                    '--attr-min': 30,
+                    '--attr-max': 60,
+                    '--control-value': mouthwashDuration
+                  } as React.CSSProperties
+                }
+                className="arkada-slider"
+              />
+
+              <div
+                className="flex items-center justify-between text-xs font-bold text-slate-600 px-1 mt-1"
+                aria-hidden="true"
+              >
+                {[30, 40, 50, 60].map((secVal) => (
+                  <span
+                    key={secVal}
+                    className={
+                      mouthwashDuration === secVal
+                        ? 'text-teal-700 font-extrabold'
+                        : 'text-slate-500'
+                    }
+                  >
+                    {secVal}s
+                  </span>
+                ))}
+              </div>
+            </div>
+          </Card>
+
+          {/* 4. Lembretes */}
           <Card padding="md" className="space-y-4">
             <div className="flex items-center gap-2.5 pb-3 border-b border-slate-200">
               <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0">

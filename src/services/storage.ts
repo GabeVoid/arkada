@@ -6,6 +6,7 @@ import {
   BrushingSlotConfig,
   DailyProgress,
   DayOfWeekStatus,
+  MouthwashDurationSeconds,
   StreakData
 } from '../types';
 
@@ -31,10 +32,12 @@ export const DEFAULT_SLOTS_THREE: BrushingSlotConfig[] = [
 
 export const DEFAULT_SETTINGS: ArkadaSettings = {
   onboardingCompleted: false,
+  disclaimerAccepted: false,
   dailyGoal: 3,
   scheduledTimes: ['08:00', '13:30', '22:00'],
   scheduledSlots: DEFAULT_SLOTS_THREE,
   brushingDuration: 180,
+  mouthwashDuration: 30,
   mouthwashEnabled: false,
   notificationsEnabled: true
 };
@@ -189,12 +192,21 @@ export async function loadSettings(): Promise<ArkadaSettings> {
     ? (saved.brushingDuration as BrushingDurationSeconds)
     : 180;
 
+  const validMouthwashDurations: MouthwashDurationSeconds[] = [30, 35, 40, 45, 50, 55, 60];
+  const mouthwashDuration: MouthwashDurationSeconds = validMouthwashDurations.includes(
+    saved.mouthwashDuration as MouthwashDurationSeconds
+  )
+    ? (saved.mouthwashDuration as MouthwashDurationSeconds)
+    : 30;
+
   return {
     onboardingCompleted: Boolean(saved.onboardingCompleted),
+    disclaimerAccepted: Boolean(saved.disclaimerAccepted),
     dailyGoal,
     scheduledTimes,
     scheduledSlots,
     brushingDuration,
+    mouthwashDuration,
     mouthwashEnabled: scheduledSlots.some((s) => s.mouthwash),
     notificationsEnabled: saved.notificationsEnabled ?? true
   };

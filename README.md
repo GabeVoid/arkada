@@ -62,7 +62,8 @@ O **Arkada** é um aplicativo mobile híbrido (focado em Android e Web/PWA) proj
 - **Sessão Guiada em Modo Foco:**
   1. **Etapa de Fio Dental (configurável por escovação):** Ilustração flat e guia rápido em 3 passos objetivos (formato em "C", movimento suave até a gengiva e trecho limpo por dente).
   2. **Timer Interativo de Escovação + Higienização da Língua:** Cronômetro circular SVG flat (configurável de **2 a 5 minutos**, padrão **3 minutos**) que divide o tempo entre os **4 quadrantes dentários** (*Superior Direito*, *Superior Esquerdo*, *Inferior Esquerdo*, *Inferior Direito*) e a **5ª etapa de Higienização da Língua** (da base até a ponta), disparando feedback tátil (`Haptics`) a cada troca de região.
-  3. **Etapa de Enxaguante Bucal (configurável por escovação):** Orientações práticas para bochecho e preservação do flúor por 30 minutos.
+  3. **Etapa de Enxaguante Bucal (configurável por escovação):** Cronômetro interativo (ajustável de **30 a 60 segundos**, padrão **30s**) + orientações práticas para bochecho e preservação do flúor por 30 minutos.
+- **Aviso de Isenção de Responsabilidade no Primeiro Uso:** Exibe informativo transparente de primeiro uso esclarecendo que o app é um ajudante de rotina criado por desenvolvedores de software e não substitui orientação odontológica profissional.
 - **Lembretes Diários Nativos & Small Badge no Ícone:**
   - Agendamento de notificações locais diárias recorrentes via `@capacitor/local-notifications`.
   - Exibição de **badge/ponto de notificação** no ícone do app quando há uma escovação cujo horário já chegou e ainda está pendente, limpando automaticamente ao concluir.
@@ -101,6 +102,7 @@ arkada/
 │   │   ├── Card.tsx
 │   │   ├── CircularTimer.tsx
 │   │   ├── ConfirmExitDialog.tsx
+│   │   ├── DisclaimerDialog.tsx
 │   │   ├── Header.tsx
 │   │   ├── StepIllustrations.tsx
 │   │   ├── StreakBanner.tsx

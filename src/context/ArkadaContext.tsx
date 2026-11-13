@@ -48,6 +48,7 @@ export interface ArkadaStoreValue {
   clearToast: () => void;
   navigateTo: (targetScreen: AppScreen) => void;
   refreshTip: () => void;
+  acceptDisclaimer: () => Promise<void>;
   completeOnboarding: (dailyGoal: number, scheduledSlots: BrushingSlotConfig[]) => Promise<void>;
   updateSettings: (partial: Partial<ArkadaSettings>) => Promise<void>;
   startBrushingSession: (slotIndex?: number) => void;
@@ -163,6 +164,7 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const updatedSettings: ArkadaSettings = {
         ...settings,
         onboardingCompleted: true,
+        disclaimerAccepted: true,
         dailyGoal,
         scheduledSlots,
         scheduledTimes,
@@ -181,6 +183,15 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     },
     [settings]
   );
+
+  const acceptDisclaimer = useCallback(async () => {
+    const nextSettings: ArkadaSettings = {
+      ...settings,
+      disclaimerAccepted: true
+    };
+    await saveSettings(nextSettings);
+    setSettings(nextSettings);
+  }, [settings]);
 
   const updateSettings = useCallback(
     async (partial: Partial<ArkadaSettings>) => {
@@ -335,6 +346,7 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       clearToast,
       navigateTo,
       refreshTip,
+      acceptDisclaimer,
       completeOnboarding,
       updateSettings,
       startBrushingSession,
@@ -357,6 +369,7 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       clearToast,
       navigateTo,
       refreshTip,
+      acceptDisclaimer,
       completeOnboarding,
       updateSettings,
       startBrushingSession,

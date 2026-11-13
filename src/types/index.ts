@@ -4,6 +4,8 @@ export type SessionStep = 'floss' | 'brush' | 'mouthwash' | 'completed';
 
 export type BrushingDurationSeconds = 120 | 180 | 240 | 300;
 
+export type MouthwashDurationSeconds = 30 | 35 | 40 | 45 | 50 | 55 | 60;
+
 export type QuadrantId =
   | 'upper-right'
   | 'upper-left'
@@ -26,10 +28,12 @@ export interface BrushingSlotConfig {
 
 export interface ArkadaSettings {
   onboardingCompleted: boolean;
+  disclaimerAccepted: boolean; // whether the user has acknowledged the first-use health/professional disclaimer
   dailyGoal: number; // 1 to 5, default 3
   scheduledTimes: string[]; // kept in sync with scheduledSlots.map(s => s.time)
   scheduledSlots: BrushingSlotConfig[]; // per-brushing configuration (time, floss, mouthwash)
   brushingDuration: BrushingDurationSeconds; // 120 to 300 (2 to 5 min), default 180 (3 min)
+  mouthwashDuration: MouthwashDurationSeconds; // 30 to 60 seconds, default 30s
   mouthwashEnabled: boolean; // legacy fallback
   notificationsEnabled: boolean; // default true
 }
