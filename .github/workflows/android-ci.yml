@@ -7,6 +7,9 @@ on:
   pull_request:
     branches: [main, master]
 
+permissions:
+  contents: write
+
 jobs:
   build-android:
     name: Build Web & Android APK
@@ -46,3 +49,14 @@ jobs:
         with:
           name: arkada-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Create GitHub Release on Tag Push
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          cp android/app/build/outputs/apk/debug/app-debug.apk "arkada-${TAG_NAME}.apk"
+          gh release create "${TAG_NAME}" "arkada-${TAG_NAME}.apk" \
+            --title "Arkada ${TAG_NAME}" \
+            --generate-notes
