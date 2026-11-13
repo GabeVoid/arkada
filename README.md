@@ -20,6 +20,35 @@ O **Arkada** é um aplicativo mobile híbrido (focado em Android e Web/PWA) proj
 
 ---
 
+## Capturas de Tela
+
+<div align="center">
+  <table>
+    <thead>
+      <tr>
+        <th align="center">Onboarding • Meta Diária</th>
+        <th align="center">Onboarding • Horários e Etapas</th>
+        <th align="center">Tela Inicial (Home)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td align="center">
+          <img src="./docs/screenshots/onboarding-step1.png" alt="Tela de Boas-vindas e Meta Diária do Arkada" width="250" />
+        </td>
+        <td align="center">
+          <img src="./docs/screenshots/onboarding-step2.png" alt="Tela de Configuração de Horários, Fio Dental e Enxaguante" width="250" />
+        </td>
+        <td align="center">
+          <img src="./docs/screenshots/home.png" alt="Tela Inicial do Arkada com Sequência e Escovações de Hoje" width="250" />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+---
+
 ## Principais Funcionalidades
 
 - **Onboarding Personalizado:** Escolha de `1` a `5` escovações diárias (padrão `3`), configure os horários exatos e defina em quais escovações deseja utilizar **Fio Dental** e **Enxaguante Bucal**.
@@ -61,6 +90,8 @@ O **Arkada** é um aplicativo mobile híbrido (focado em Android e Web/PWA) proj
 ```text
 arkada/
 ├── android/                  # Projeto nativo Android (Capacitor)
+├── docs/
+│   └── screenshots/          # Capturas de tela do aplicativo
 ├── public/                   # Ícones públicos, favicon e manifest PWA
 ├── resources/                # Recursos base de ícone do app
 ├── src/
