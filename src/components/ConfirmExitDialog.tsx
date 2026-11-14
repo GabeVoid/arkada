@@ -50,17 +50,17 @@ export const ConfirmExitDialog: React.FC<ConfirmExitDialogProps> = ({
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
-      className="w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-none backdrop:bg-slate-900/50"
+      className="w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-slate-900 dark:text-slate-100 shadow-none backdrop:bg-slate-900/50"
     >
       <div className="flex flex-col items-center text-center">
-        <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-300 text-amber-600 flex items-center justify-center mb-4">
+        <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4">
           <AlertTriangle className="w-6 h-6" aria-hidden="true" />
         </div>
 
-        <h2 id={titleId} className="text-lg font-extrabold text-slate-900">
+        <h2 id={titleId} className="text-lg font-extrabold text-slate-900 dark:text-slate-100">
           Encerrar escovação?
         </h2>
-        <p className="text-sm text-slate-600 mt-1.5">
+        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1.5">
           Se você sair agora, o progresso desta sessão guiada não será registrado na sua meta de hoje.
         </p>
 
@@ -76,7 +76,7 @@ export const ConfirmExitDialog: React.FC<ConfirmExitDialogProps> = ({
           <button
             type="submit"
             value="exit"
-            className="min-h-[48px] w-full rounded-xl bg-white text-rose-600 font-semibold text-sm border border-slate-200 hover:bg-rose-50 active:bg-rose-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
+            className="min-h-[48px] w-full rounded-xl bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 font-semibold text-sm border border-slate-200 dark:border-slate-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 active:bg-rose-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
           >
             Sair sem salvar
           </button>
@@ -85,4 +85,3 @@ export const ConfirmExitDialog: React.FC<ConfirmExitDialogProps> = ({
     </dialog>
   );
 };
-

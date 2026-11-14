@@ -11,6 +11,7 @@ import {
 } from '../types';
 import { getRandomTip } from '../data/tips';
 import {
+  applyThemeToDOM,
   DEFAULT_SETTINGS,
   DEFAULT_STREAK,
   getOrCreateTodayProgress,
@@ -21,7 +22,8 @@ import {
   recordBrushingSession,
   saveSettings,
   syncTodayGoalWithSettings,
-  toggleSlotCompletionToday
+  toggleSlotCompletionToday,
+  toLocalDateKey
 } from '../services/storage';
 import {
   getDuePendingBrushingsCount,
@@ -51,6 +53,7 @@ export interface ArkadaStoreValue {
   acceptDisclaimer: () => Promise<void>;
   completeOnboarding: (dailyGoal: number, scheduledSlots: BrushingSlotConfig[]) => Promise<void>;
   updateSettings: (partial: Partial<ArkadaSettings>) => Promise<void>;
+  resetCyclicalReminder: (type: 'toothbrush' | 'dentist', customDateKey?: string) => Promise<void>;
   startBrushingSession: (slotIndex?: number) => void;
   finishBrushingSession: (
     durationSeconds: number,
@@ -95,6 +98,7 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       loadAndVerifyStreak()
     ]);
 
+    applyThemeToDOM(loadedSettings.themeMode, loadedSettings.colorTheme);
     setSettings(loadedSettings);
     setHistory(loadedHistory);
     setStreak(verifiedStreak);
@@ -114,6 +118,21 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     void hydrateState(false);
   }, [hydrateState]);
+
+  // Keep DOM theme synced when settings change or system color-scheme media query toggles
+  useEffect(() => {
+    applyThemeToDOM(settings.themeMode, settings.colorTheme);
+
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      if (settings.themeMode === 'system') {
+        applyThemeToDOM('system', settings.colorTheme);
+      }
+    };
+    mq.addEventListener('change', handleChange);
+    return () => mq.removeEventListener('change', handleChange);
+  }, [settings.themeMode, settings.colorTheme]);
 
   // Listen to Capacitor appStateChange (resume) and browser visibilitychange to refresh streak & tip
   useEffect(() => {
@@ -151,7 +170,6 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const navigateTo = useCallback((targetScreen: AppScreen) => {
     if (targetScreen === 'home') {
-      // Rule: Sortear uma dica aleatória diferente toda vez que o usuário navegar de volta para a Home
       setCurrentTip((prev) => getRandomTip(prev.id));
       void loadAndVerifyStreak().then(setStreak);
     }
@@ -176,7 +194,7 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setSettings(updatedSettings);
 
       await requestNotificationPermission();
-      await syncDailyReminders(scheduledTimes, true);
+      await syncDailyReminders(scheduledTimes, true, updatedSettings.cyclicalReminders);
 
       setCurrentTip((prev) => getRandomTip(prev.id));
       setScreen('home');
@@ -213,12 +231,14 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         partial.dailyGoal !== undefined ||
         partial.scheduledSlots !== undefined ||
         partial.scheduledTimes !== undefined ||
-        partial.notificationsEnabled !== undefined;
+        partial.notificationsEnabled !== undefined ||
+        partial.cyclicalReminders !== undefined;
 
       if (scheduleChanged) {
         await syncDailyReminders(
           nextSettings.scheduledTimes,
-          nextSettings.notificationsEnabled
+          nextSettings.notificationsEnabled,
+          nextSettings.cyclicalReminders
         );
       }
 
@@ -226,6 +246,46 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const synced = await syncTodayGoalWithSettings(nextSettings.dailyGoal);
         setHistory(synced.history);
         setStreak(synced.streak);
+      }
+    },
+    [settings]
+  );
+
+  const resetCyclicalReminder = useCallback(
+    async (type: 'toothbrush' | 'dentist', customDateKey?: string) => {
+      const targetDate = customDateKey ?? toLocalDateKey(new Date());
+      const nextCyclical = {
+        ...settings.cyclicalReminders,
+        [type]: {
+          ...settings.cyclicalReminders[type],
+          lastDate: targetDate
+        }
+      };
+
+      const nextSettings: ArkadaSettings = {
+        ...settings,
+        cyclicalReminders: nextCyclical
+      };
+
+      await saveSettings(nextSettings);
+      setSettings(nextSettings);
+      await syncDailyReminders(
+        nextSettings.scheduledTimes,
+        nextSettings.notificationsEnabled,
+        nextCyclical
+      );
+
+      void triggerQuadrantHaptic();
+      if (type === 'toothbrush') {
+        setToastMessage(
+          `Troca de escova registrada! Próximo lembrete em ${nextCyclical.toothbrush.intervalDays} dias.`
+        );
+      } else {
+        setToastMessage(
+          `Consulta/limpeza registrada! Próximo lembrete em ${nextCyclical.dentist.intervalMonths} ${
+            nextCyclical.dentist.intervalMonths === 1 ? 'mês' : 'meses'
+          }.`
+        );
       }
     },
     [settings]
@@ -271,7 +331,7 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           );
         } else {
           void triggerQuadrantHaptic();
-          setToastMessage(`Escovação ${slotIndex + 1} marcada como concluída hoje.`);
+          setToastMessage(`Escovação ${slotIndex + 1} concluída.`);
         }
       } else {
         void triggerQuadrantHaptic();
@@ -349,6 +409,7 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       acceptDisclaimer,
       completeOnboarding,
       updateSettings,
+      resetCyclicalReminder,
       startBrushingSession,
       finishBrushingSession,
       toggleBrushingSlotToday,
@@ -372,6 +433,7 @@ export const ArkadaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       acceptDisclaimer,
       completeOnboarding,
       updateSettings,
+      resetCyclicalReminder,
       startBrushingSession,
       finishBrushingSession,
       toggleBrushingSlotToday,

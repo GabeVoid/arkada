@@ -1,9 +1,16 @@
 import { Capacitor } from '@capacitor/core';
-import { LocalNotifications } from '@capacitor/local-notifications';
+import { LocalNotifications, LocalNotificationSchema } from '@capacitor/local-notifications';
 import { Badge } from '@capawesome/capacitor-badge';
-import { ArkadaSettings, DailyProgress } from '../types';
+import { ArkadaSettings, CyclicalRemindersConfig, DailyProgress } from '../types';
+import {
+  getDentistReminderStatus,
+  getToothbrushReminderStatus,
+  parseLocalDateKey
+} from './storage';
 
 const DAILY_NOTIFICATION_BASE_ID = 1000;
+const TOOTHBRUSH_NOTIFICATION_ID = 2001;
+const DENTIST_NOTIFICATION_ID = 2002;
 const TEST_NOTIFICATION_ID = 9999;
 const REMINDER_CHANNEL_ID = 'arkada_reminders';
 
@@ -16,8 +23,8 @@ async function ensureReminderChannel(): Promise<void> {
   try {
     await LocalNotifications.createChannel({
       id: REMINDER_CHANNEL_ID,
-      name: 'Lembretes de Escovação',
-      description: 'Alertas nos horários programados da sua rotina de higiene bucal',
+      name: 'Lembretes de Higiene Bucal',
+      description: 'Alertas nos horários programados e lembretes cíclicos do Arkada',
       importance: 4,
       visibility: 1,
       vibration: true
@@ -58,7 +65,7 @@ export async function requestNotificationPermission(): Promise<boolean> {
 }
 
 /**
- * Cancels all previously scheduled daily reminders in LocalNotifications.
+ * Cancels all previously scheduled reminders in LocalNotifications.
  */
 export async function cancelAllScheduledReminders(): Promise<void> {
   try {
@@ -74,15 +81,17 @@ export async function cancelAllScheduledReminders(): Promise<void> {
 }
 
 /**
- * Cancels old reminders and schedules recurring daily notifications at the exact times configured by the user.
+ * Cancels old reminders and schedules recurring daily notifications at the exact times configured by the user,
+ * plus future cyclical reminders (toothbrush replacement and dentist visit).
  */
 export async function syncDailyReminders(
   scheduledTimes: string[],
-  enabled: boolean
+  enabled: boolean,
+  cyclicalReminders?: CyclicalRemindersConfig
 ): Promise<boolean> {
   await cancelAllScheduledReminders();
 
-  if (!enabled || scheduledTimes.length === 0) {
+  if (!enabled) {
     return false;
   }
 
@@ -90,7 +99,7 @@ export async function syncDailyReminders(
   await ensureReminderChannel();
 
   try {
-    const notifications = scheduledTimes.map((timeStr, idx) => {
+    const notifications: LocalNotificationSchema[] = scheduledTimes.map((timeStr, idx) => {
       const [hourStr, minuteStr] = timeStr.split(':');
       const hour = Number.parseInt(hourStr ?? '8', 10);
       const minute = Number.parseInt(minuteStr ?? '0', 10);
@@ -111,7 +120,47 @@ export async function syncDailyReminders(
       };
     });
 
-    await LocalNotifications.schedule({ notifications });
+    const now = new Date();
+
+    if (cyclicalReminders?.toothbrush.enabled) {
+      const tbStatus = getToothbrushReminderStatus(cyclicalReminders.toothbrush, now);
+      const dueDate = parseLocalDateKey(tbStatus.nextDueDateKey, now);
+      dueDate.setHours(9, 0, 0, 0);
+      if (dueDate.getTime() > now.getTime()) {
+        notifications.push({
+          id: TOOTHBRUSH_NOTIFICATION_ID,
+          title: 'Hora de trocar sua escova dental • Arkada',
+          body: `Já se passaram ${cyclicalReminders.toothbrush.intervalDays} dias desde a última troca. Cerdas novas limpam melhor!`,
+          channelId: REMINDER_CHANNEL_ID,
+          schedule: {
+            at: dueDate,
+            allowWhileIdle: true
+          }
+        });
+      }
+    }
+
+    if (cyclicalReminders?.dentist.enabled) {
+      const dtStatus = getDentistReminderStatus(cyclicalReminders.dentist, now);
+      const dueDate = parseLocalDateKey(dtStatus.nextDueDateKey, now);
+      dueDate.setHours(9, 30, 0, 0);
+      if (dueDate.getTime() > now.getTime()) {
+        notifications.push({
+          id: DENTIST_NOTIFICATION_ID,
+          title: 'Hora de agendar consulta e limpeza • Arkada',
+          body: `Completou o ciclo de ${cyclicalReminders.dentist.intervalMonths} meses desde sua última ida ao dentista.`,
+          channelId: REMINDER_CHANNEL_ID,
+          schedule: {
+            at: dueDate,
+            allowWhileIdle: true
+          }
+        });
+      }
+    }
+
+    if (notifications.length > 0) {
+      await LocalNotifications.schedule({ notifications });
+    }
     return hasPermission;
   } catch {
     return hasPermission;
@@ -120,7 +169,7 @@ export async function syncDailyReminders(
 
 /**
  * Calculates how many scheduled brushings for today have already reached their time
- * (current local HH:MM >= slot.time) and have not yet been completed.
+ * (current local HH:MM >= slot.time) and have not yet been completed, plus any overdue cyclical reminders.
  */
 export function getDuePendingBrushingsCount(
   settings: ArkadaSettings,
@@ -147,11 +196,19 @@ export function getDuePendingBrushingsCount(
     }
   });
 
+  if (settings.cyclicalReminders) {
+    const tb = getToothbrushReminderStatus(settings.cyclicalReminders.toothbrush, now);
+    if (tb.isDueOrOverdue) duePendingCount += 1;
+
+    const dt = getDentistReminderStatus(settings.cyclicalReminders.dentist, now);
+    if (dt.isDueOrOverdue) duePendingCount += 1;
+  }
+
   return duePendingCount;
 }
 
 /**
- * Updates the small badge on the app icon based on how many due brushings are currently pending.
+ * Updates the small badge on the app icon based on how many due brushings/reminders are currently pending.
  * When duePendingCount reaches 0, clears the badge and removes delivered notifications so the
  * Android launcher dot disappears immediately.
  */

@@ -8,9 +8,9 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
   return (
-    <header className="sticky top-0 z-30 w-full bg-white border-b border-slate-200 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 flex items-center justify-between">
+    <header className="sticky top-0 z-30 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center p-1.5 shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1.5 shrink-0">
           <img
             src={arkadaLogo}
             alt="Logo do Arkada"
@@ -20,10 +20,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
           />
         </div>
         <div>
-          <h1 className="text-lg font-bold tracking-tight text-slate-900 leading-none">
+          <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100 leading-none">
             Arkada
           </h1>
-          <p className="text-xs font-medium text-slate-600 mt-0.5">
+          <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mt-0.5">
             Rotina de Higiene Bucal
           </p>
         </div>
@@ -33,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
         type="button"
         onClick={onOpenSettings}
         aria-label="Abrir Configurações"
-        className="min-h-[48px] min-w-[48px] rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+        className="min-h-[48px] min-w-[48px] rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 active:bg-slate-200 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
       >
         <Settings className="w-5 h-5" aria-hidden="true" />
       </button>

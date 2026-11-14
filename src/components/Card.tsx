@@ -20,11 +20,10 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white border border-slate-200 rounded-2xl shadow-none ${paddingMap[padding]} ${className}`}
+      className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-none ${paddingMap[padding]} ${className}`}
       {...props}
     >
       {children}
     </div>
   );
 };
-

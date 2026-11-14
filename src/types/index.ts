@@ -6,6 +6,10 @@ export type BrushingDurationSeconds = 120 | 180 | 240 | 300;
 
 export type MouthwashDurationSeconds = 30 | 35 | 40 | 45 | 50 | 55 | 60;
 
+export type ThemeMode = 'light' | 'dark' | 'system';
+
+export type ColorTheme = 'mint' | 'ocean' | 'violet' | 'emerald';
+
 export type QuadrantId =
   | 'upper-right'
   | 'upper-left'
@@ -26,9 +30,38 @@ export interface BrushingSlotConfig {
   mouthwash: boolean; // whether to use mouthwash in this brushing
 }
 
+export interface ToothbrushReminderConfig {
+  enabled: boolean;
+  intervalDays: number; // default 60 days, editable
+  lastDate: string; // YYYY-MM-DD
+}
+
+export interface DentistReminderConfig {
+  enabled: boolean;
+  intervalMonths: number; // default 6 months, editable
+  lastDate: string; // YYYY-MM-DD
+}
+
+export interface CyclicalRemindersConfig {
+  toothbrush: ToothbrushReminderConfig;
+  dentist: DentistReminderConfig;
+}
+
+export interface CyclicalReminderStatus {
+  enabled: boolean;
+  lastDate: string;
+  nextDueDateKey: string;
+  nextDueFormatted: string;
+  daysRemaining: number; // negative if overdue, 0 if due today
+  isDueOrOverdue: boolean;
+  isDueSoon: boolean; // <= 7 days remaining
+}
+
 export interface ArkadaSettings {
   onboardingCompleted: boolean;
   disclaimerAccepted: boolean; // whether the user has acknowledged the first-use health/professional disclaimer
+  themeMode: ThemeMode; // 'light' | 'dark' | 'system'
+  colorTheme: ColorTheme; // 'mint' | 'ocean' | 'violet' | 'emerald'
   dailyGoal: number; // 1 to 5, default 3
   scheduledTimes: string[]; // kept in sync with scheduledSlots.map(s => s.time)
   scheduledSlots: BrushingSlotConfig[]; // per-brushing configuration (time, floss, mouthwash)
@@ -36,6 +69,7 @@ export interface ArkadaSettings {
   mouthwashDuration: MouthwashDurationSeconds; // 30 to 60 seconds, default 30s
   mouthwashEnabled: boolean; // legacy fallback
   notificationsEnabled: boolean; // default true
+  cyclicalReminders: CyclicalRemindersConfig;
 }
 
 export interface BrushingSessionLog {

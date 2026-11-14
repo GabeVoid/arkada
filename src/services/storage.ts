@@ -4,16 +4,24 @@ import {
   BrushingDurationSeconds,
   BrushingSessionLog,
   BrushingSlotConfig,
+  ColorTheme,
+  CyclicalRemindersConfig,
+  CyclicalReminderStatus,
   DailyProgress,
   DayOfWeekStatus,
+  DentistReminderConfig,
   MouthwashDurationSeconds,
-  StreakData
+  StreakData,
+  ThemeMode,
+  ToothbrushReminderConfig
 } from '../types';
 
 const KEYS = {
   SETTINGS: 'arkada_settings_v1',
   STREAK: 'arkada_streak_v1',
-  DAILY_HISTORY: 'arkada_daily_history_v1'
+  DAILY_HISTORY: 'arkada_daily_history_v1',
+  COLOR_SCHEME: 'color-scheme',
+  COLOR_THEME: 'arkada_color_theme'
 };
 
 export const DEFAULT_SCHEDULE_BY_COUNT: Record<number, string[]> = {
@@ -30,16 +38,70 @@ export const DEFAULT_SLOTS_THREE: BrushingSlotConfig[] = [
   { time: '22:00', floss: true, mouthwash: true }
 ];
 
+/**
+ * Formats a Date object as YYYY-MM-DD in local time.
+ */
+export function toLocalDateKey(date: Date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Parses a YYYY-MM-DD string into a local Date at midnight.
+ */
+export function parseLocalDateKey(dateKey: string, fallback: Date = new Date()): Date {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+    return new Date(fallback.getFullYear(), fallback.getMonth(), fallback.getDate());
+  }
+  const [y, m, d] = dateKey.split('-').map((n) => Number.parseInt(n, 10));
+  if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) {
+    return new Date(fallback.getFullYear(), fallback.getMonth(), fallback.getDate());
+  }
+  return new Date(y, m - 1, d);
+}
+
+/**
+ * Formats YYYY-MM-DD into DD/MM/YYYY for display.
+ */
+export function formatDateKeyBR(dateKey: string): string {
+  const date = parseLocalDateKey(dateKey);
+  const d = String(date.getDate()).padStart(2, '0');
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const y = date.getFullYear();
+  return `${d}/${m}/${y}`;
+}
+
+export function createDefaultCyclicalReminders(now: Date = new Date()): CyclicalRemindersConfig {
+  const todayKey = toLocalDateKey(now);
+  return {
+    toothbrush: {
+      enabled: true,
+      intervalDays: 60,
+      lastDate: todayKey
+    },
+    dentist: {
+      enabled: true,
+      intervalMonths: 6,
+      lastDate: todayKey
+    }
+  };
+}
+
 export const DEFAULT_SETTINGS: ArkadaSettings = {
   onboardingCompleted: false,
   disclaimerAccepted: false,
+  themeMode: 'system',
+  colorTheme: 'mint',
   dailyGoal: 3,
   scheduledTimes: ['08:00', '13:30', '22:00'],
   scheduledSlots: DEFAULT_SLOTS_THREE,
   brushingDuration: 180,
   mouthwashDuration: 30,
   mouthwashEnabled: false,
-  notificationsEnabled: true
+  notificationsEnabled: true,
+  cyclicalReminders: createDefaultCyclicalReminders()
 };
 
 export const DEFAULT_STREAK: StreakData = {
@@ -50,13 +112,98 @@ export const DEFAULT_STREAK: StreakData = {
 };
 
 /**
- * Formats a Date object as YYYY-MM-DD in local time.
+ * Computes status and countdown for the cyclical Toothbrush Replacement reminder.
  */
-export function toLocalDateKey(date: Date = new Date()): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+export function getToothbrushReminderStatus(
+  config: ToothbrushReminderConfig,
+  now: Date = new Date()
+): CyclicalReminderStatus {
+  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const start = parseLocalDateKey(config.lastDate, todayMidnight);
+  const safeDays = Math.max(7, Math.min(365, Math.round(config.intervalDays || 60)));
+
+  const due = new Date(start.getFullYear(), start.getMonth(), start.getDate() + safeDays);
+  const diffMs = due.getTime() - todayMidnight.getTime();
+  const daysRemaining = Math.round(diffMs / (1000 * 60 * 60 * 24));
+  const nextDueDateKey = toLocalDateKey(due);
+
+  return {
+    enabled: config.enabled,
+    lastDate: toLocalDateKey(start),
+    nextDueDateKey,
+    nextDueFormatted: formatDateKeyBR(nextDueDateKey),
+    daysRemaining,
+    isDueOrOverdue: config.enabled && daysRemaining <= 0,
+    isDueSoon: config.enabled && daysRemaining > 0 && daysRemaining <= 7
+  };
+}
+
+/**
+ * Computes status and countdown for the cyclical Dentist Checkup & Cleaning reminder.
+ */
+export function getDentistReminderStatus(
+  config: DentistReminderConfig,
+  now: Date = new Date()
+): CyclicalReminderStatus {
+  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const start = parseLocalDateKey(config.lastDate, todayMidnight);
+  const safeMonths = Math.max(1, Math.min(24, Math.round(config.intervalMonths || 6)));
+
+  const due = new Date(start.getFullYear(), start.getMonth() + safeMonths, start.getDate());
+  const diffMs = due.getTime() - todayMidnight.getTime();
+  const daysRemaining = Math.round(diffMs / (1000 * 60 * 60 * 24));
+  const nextDueDateKey = toLocalDateKey(due);
+
+  return {
+    enabled: config.enabled,
+    lastDate: toLocalDateKey(start),
+    nextDueDateKey,
+    nextDueFormatted: formatDateKeyBR(nextDueDateKey),
+    daysRemaining,
+    isDueOrOverdue: config.enabled && daysRemaining <= 0,
+    isDueSoon: config.enabled && daysRemaining > 0 && daysRemaining <= 14
+  };
+}
+
+/**
+ * Applies theme mode ('light' | 'dark' | 'system') and color palette ('mint' | 'ocean' | 'violet' | 'emerald')
+ * to the DOM and persists the color-scheme override in localStorage per modern-web-guidance.
+ */
+export function applyThemeToDOM(themeMode: ThemeMode, colorTheme: ColorTheme): void {
+  if (typeof document === 'undefined') return;
+
+  const root = document.documentElement;
+  const metaScheme = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]');
+  const metaThemeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+
+  const schemeContent = themeMode === 'system' ? 'light dark' : themeMode;
+  if (metaScheme) {
+    metaScheme.content = schemeContent;
+  }
+
+  try {
+    if (themeMode === 'system') {
+      localStorage.removeItem(KEYS.COLOR_SCHEME);
+    } else {
+      localStorage.setItem(KEYS.COLOR_SCHEME, themeMode);
+    }
+    localStorage.setItem(KEYS.COLOR_THEME, colorTheme);
+  } catch {
+    // Ignore storage errors
+  }
+
+  const prefersDark =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  const isDark = themeMode === 'dark' || (themeMode === 'system' && prefersDark);
+  root.classList.toggle('dark', isDark);
+  root.dataset.colorTheme = colorTheme;
+
+  if (metaThemeColor) {
+    metaThemeColor.content = isDark ? '#0F172A' : '#F8FAFC';
+  }
 }
 
 /**
@@ -199,21 +346,64 @@ export async function loadSettings(): Promise<ArkadaSettings> {
     ? (saved.mouthwashDuration as MouthwashDurationSeconds)
     : 30;
 
+  const validThemeModes: ThemeMode[] = ['light', 'dark', 'system'];
+  const themeMode: ThemeMode = validThemeModes.includes(saved.themeMode as ThemeMode)
+    ? (saved.themeMode as ThemeMode)
+    : 'system';
+
+  const validColorThemes: ColorTheme[] = ['mint', 'ocean', 'violet', 'emerald'];
+  const colorTheme: ColorTheme = validColorThemes.includes(saved.colorTheme as ColorTheme)
+    ? (saved.colorTheme as ColorTheme)
+    : 'mint';
+
+  const defaultCyclical = createDefaultCyclicalReminders();
+  const savedToothbrush = saved.cyclicalReminders?.toothbrush;
+  const savedDentist = saved.cyclicalReminders?.dentist;
+
+  const cyclicalReminders: CyclicalRemindersConfig = {
+    toothbrush: {
+      enabled: savedToothbrush?.enabled ?? defaultCyclical.toothbrush.enabled,
+      intervalDays: Math.max(
+        7,
+        Math.min(365, Number(savedToothbrush?.intervalDays) || defaultCyclical.toothbrush.intervalDays)
+      ),
+      lastDate:
+        savedToothbrush?.lastDate && /^\d{4}-\d{2}-\d{2}$/.test(savedToothbrush.lastDate)
+          ? savedToothbrush.lastDate
+          : defaultCyclical.toothbrush.lastDate
+    },
+    dentist: {
+      enabled: savedDentist?.enabled ?? defaultCyclical.dentist.enabled,
+      intervalMonths: Math.max(
+        1,
+        Math.min(24, Number(savedDentist?.intervalMonths) || defaultCyclical.dentist.intervalMonths)
+      ),
+      lastDate:
+        savedDentist?.lastDate && /^\d{4}-\d{2}-\d{2}$/.test(savedDentist.lastDate)
+          ? savedDentist.lastDate
+          : defaultCyclical.dentist.lastDate
+    }
+  };
+
   return {
     onboardingCompleted: Boolean(saved.onboardingCompleted),
     disclaimerAccepted: Boolean(saved.disclaimerAccepted),
+    themeMode,
+    colorTheme,
     dailyGoal,
     scheduledTimes,
     scheduledSlots,
     brushingDuration,
     mouthwashDuration,
     mouthwashEnabled: scheduledSlots.some((s) => s.mouthwash),
-    notificationsEnabled: saved.notificationsEnabled ?? true
+    notificationsEnabled: saved.notificationsEnabled ?? true,
+    cyclicalReminders
   };
 }
 
 export async function saveSettings(settings: ArkadaSettings): Promise<void> {
   const syncedTimes = settings.scheduledSlots.map((s) => s.time);
+  applyThemeToDOM(settings.themeMode, settings.colorTheme);
   await setItem(KEYS.SETTINGS, {
     ...settings,
     scheduledTimes: syncedTimes,

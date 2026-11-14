@@ -5,7 +5,7 @@ import React from 'react';
  */
 export const FlossIllustration: React.FC = () => {
   return (
-    <div className="w-40 h-40 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center mx-auto">
+    <div className="w-40 h-40 rounded-2xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 flex items-center justify-center mx-auto">
       <svg
         width="120"
         height="120"
@@ -33,14 +33,14 @@ export const FlossIllustration: React.FC = () => {
         {/* Floss line forming a C shape around the tooth */}
         <path
           d="M12 20L52 44C60 52 60 66 52 74L108 20"
-          stroke="#0D9488"
+          stroke="rgb(var(--brand-600))"
           strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         {/* Floss handle nodes */}
-        <circle cx="12" cy="20" r="5" fill="#0D9488" />
-        <circle cx="108" cy="20" r="5" fill="#0D9488" />
+        <circle cx="12" cy="20" r="5" fill="rgb(var(--brand-600))" />
+        <circle cx="108" cy="20" r="5" fill="rgb(var(--brand-600))" />
       </svg>
     </div>
   );
@@ -51,7 +51,7 @@ export const FlossIllustration: React.FC = () => {
  */
 export const MouthwashIllustration: React.FC = () => {
   return (
-    <div className="w-40 h-40 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center mx-auto">
+    <div className="w-40 h-40 rounded-2xl bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 flex items-center justify-center mx-auto">
       <svg
         width="120"
         height="120"
@@ -77,4 +77,3 @@ export const MouthwashIllustration: React.FC = () => {
     </div>
   );
 };
-

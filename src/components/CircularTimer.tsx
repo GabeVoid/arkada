@@ -73,16 +73,21 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
     const isCurrent = !isFinished && idx === activeQuadrantIndex;
     const isDone = isFinished || idx < activeQuadrantIndex;
 
-    let cardClasses = 'bg-white border-slate-200 text-slate-600';
-    let badgeClasses = 'bg-slate-100 text-slate-600 border-slate-200';
+    let cardClasses =
+      'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400';
+    let badgeClasses =
+      'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700';
     const statusText = isDone ? 'OK' : isCurrent ? 'Agora' : 'Aguardar';
 
     if (isCurrent) {
-      cardClasses = 'bg-teal-50 border-teal-600 text-slate-900';
+      cardClasses =
+        'bg-teal-50 dark:bg-teal-950/60 border-teal-600 text-slate-900 dark:text-slate-100';
       badgeClasses = 'bg-teal-600 text-white border-teal-600';
     } else if (isDone) {
-      cardClasses = 'bg-slate-100 border-teal-300 text-teal-800';
-      badgeClasses = 'bg-teal-100 text-teal-800 border-teal-300';
+      cardClasses =
+        'bg-slate-100 dark:bg-slate-800/70 border-teal-300 dark:border-teal-800 text-teal-800 dark:text-teal-300';
+      badgeClasses =
+        'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200 border-teal-300 dark:border-teal-700';
     }
 
     return { cardClasses, badgeClasses, statusText };
@@ -107,7 +112,7 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="#E2E8F0"
+            className="stroke-slate-200 dark:stroke-slate-800"
             strokeWidth={strokeWidth}
           />
           {/* Progress Arc */}
@@ -116,7 +121,13 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke={isFinished ? '#0D9488' : isRunning ? '#0D9488' : '#0284C7'}
+            stroke={
+              isFinished
+                ? 'rgb(var(--brand-600))'
+                : isRunning
+                ? 'rgb(var(--brand-600))'
+                : '#0284C7'
+            }
             strokeWidth={strokeWidth}
             strokeLinecap="butt"
             strokeDasharray={circumference}
@@ -127,7 +138,7 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
 
         {/* Center Content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
-          <span className="text-xs font-bold uppercase tracking-widest text-slate-600">
+          <span className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">
             {isFinished
               ? 'Concluído'
               : activeQuadrantIndex === 4
@@ -135,7 +146,7 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
               : `Quadrante ${activeQuadrantIndex + 1} de 4`}
           </span>
           <span
-            className="text-5xl font-extrabold tracking-tight text-slate-900 tabular-nums my-1"
+            className="text-5xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 tabular-nums my-1"
             aria-live="polite"
           >
             {formatMinutesSeconds(remainingSeconds)}
@@ -143,8 +154,8 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
           <span
             className={`inline-block px-3 py-1 rounded-lg text-xs font-bold border ${
               isFinished
-                ? 'bg-teal-50 border-teal-200 text-teal-800'
-                : 'bg-slate-100 border-slate-200 text-slate-800'
+                ? 'bg-teal-50 dark:bg-teal-950/60 border-teal-200 dark:border-teal-800 text-teal-800 dark:text-teal-300'
+                : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200'
             }`}
           >
             {isFinished ? 'Escovação Completa!' : currentQuadrant.label}
@@ -191,7 +202,7 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
               <span className="text-xs font-bold leading-tight block">
                 {tongueZone.label}
               </span>
-              <span className="text-[11px] text-slate-600 block">
+              <span className="text-[11px] text-slate-600 dark:text-slate-400 block">
                 Varredura suave da base até a ponta da língua
               </span>
             </div>
@@ -199,7 +210,7 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
           <span className="text-[11px] font-semibold shrink-0">{tongueStyle.statusText}</span>
         </div>
 
-        <p className="text-xs text-slate-600 text-center pt-1 min-h-[32px]">
+        <p className="text-xs text-slate-600 dark:text-slate-400 text-center pt-1 min-h-[32px]">
           {isFinished
             ? 'Todos os 4 quadrantes e a língua foram higienizados com sucesso.'
             : currentQuadrant.description}

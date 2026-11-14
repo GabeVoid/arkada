@@ -26,12 +26,12 @@ export const Switch: React.FC<SwitchProps> = ({
       <div className="flex-1">
         <label
           htmlFor={inputId}
-          className="text-sm font-bold text-slate-900 cursor-pointer block"
+          className="text-sm font-bold text-slate-900 dark:text-slate-100 cursor-pointer block"
         >
           {label}
         </label>
         {description && (
-          <p id={descId} className="text-xs text-slate-600 mt-0.5">
+          <p id={descId} className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
             {description}
           </p>
         )}
@@ -50,4 +50,3 @@ export const Switch: React.FC<SwitchProps> = ({
     </div>
   );
 };
-

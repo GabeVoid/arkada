@@ -16,7 +16,7 @@
 
 ## Sobre o Projeto
 
-O **Arkada** é um aplicativo mobile híbrido (focado em Android e Web/PWA) projetado para ajudar você a construir e manter o hábito diário de higiene bucal completa. Desenvolvido com **Flat Design estrito**, funcionamento **100% offline** e foco em privacidade (todos os dados ficam salvos localmente no seu dispositivo).
+O **Arkada** é um aplicativo mobile híbrido (focado em Android e Web/PWA) projetado para ajudar você a construir e manter o hábito diário de higiene bucal completa. Desenvolvido com **Flat Design estrito**, suporte a **Modo Claro/Escuro e Paletas de Cores**, funcionamento **100% offline** e foco em privacidade (todos os dados ficam salvos localmente no seu dispositivo).
 
 ---
 
@@ -29,18 +29,22 @@ O **Arkada** é um aplicativo mobile híbrido (focado em Android e Web/PWA) proj
         <th align="center">Onboarding • Meta Diária</th>
         <th align="center">Onboarding • Horários e Etapas</th>
         <th align="center">Tela Inicial (Home)</th>
+        <th align="center">Sessão • Escovação Guiada</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td align="center">
-          <img src="./docs/screenshots/onboarding-step1.png" alt="Tela de Boas-vindas e Meta Diária do Arkada" width="250" />
+          <img src="./docs/screenshots/onboarding-step1.png" alt="Tela de Boas-vindas e Meta Diária do Arkada" width="210" />
         </td>
         <td align="center">
-          <img src="./docs/screenshots/onboarding-step2.png" alt="Tela de Configuração de Horários, Fio Dental e Enxaguante" width="250" />
+          <img src="./docs/screenshots/onboarding-step2.png" alt="Tela de Configuração de Horários, Fio Dental e Enxaguante" width="210" />
         </td>
         <td align="center">
-          <img src="./docs/screenshots/home.png" alt="Tela Inicial do Arkada com Sequência e Escovações de Hoje" width="250" />
+          <img src="./docs/screenshots/home.png" alt="Tela Inicial do Arkada com Sequência, Escovações de Hoje e Lembretes" width="210" />
+        </td>
+        <td align="center">
+          <img src="./docs/screenshots/session-brush.png" alt="Sessão Guiada com Cronômetro Circular por Quadrantes e Língua" width="210" />
         </td>
       </tr>
     </tbody>
@@ -59,14 +63,20 @@ O **Arkada** é um aplicativo mobile híbrido (focado em Android e Web/PWA) proj
 - **Lista de Escovações do Dia + Marcação Manual:**
   - Visualize todas as escovações programadas para hoje (*Concluída*, *Próxima*, *Pendente*) com indicadores das etapas configuradas (`+ Fio Dental`, `+ Enxaguante`).
   - **Marcação Rápida:** Escovou os dentes sem estar com o celular em mãos? Marque a escovação diretamente na lista até o final do dia para registrar no histórico e manter sua sequência ativa.
+- **Lembretes Cíclicos (Troca de Escova & Dentista):**
+  - **Troca de Escova Dental:** Ciclo configurável em dias (padrão **60 dias**, editável) com contagem regressiva na tela inicial e botão rápido *"Troquei hoje"*.
+  - **Consulta e Limpeza no Dentista:** Ciclo configurável em meses (padrão **6 meses**, tempo recomendado pelos dentistas e editável) com contagem regressiva e botão rápido *"Realizei hoje"*.
 - **Sessão Guiada em Modo Foco:**
   1. **Etapa de Fio Dental (configurável por escovação):** Ilustração flat e guia rápido em 3 passos objetivos (formato em "C", movimento suave até a gengiva e trecho limpo por dente).
   2. **Timer Interativo de Escovação + Higienização da Língua:** Cronômetro circular SVG flat (configurável de **2 a 5 minutos**, padrão **3 minutos**) que divide o tempo entre os **4 quadrantes dentários** (*Superior Direito*, *Superior Esquerdo*, *Inferior Esquerdo*, *Inferior Direito*) e a **5ª etapa de Higienização da Língua** (da base até a ponta), disparando feedback tátil (`Haptics`) a cada troca de região.
   3. **Etapa de Enxaguante Bucal (configurável por escovação):** Cronômetro interativo (ajustável de **30 a 60 segundos**, padrão **30s**) + orientações práticas para bochecho e preservação do flúor por 30 minutos.
+- **Temas e Modo Escuro (Dark Mode):**
+  - Escolha entre **Claro**, **Escuro** ou **Sistema** (automático conforme o sistema operacional).
+  - Personalize a paleta de cores do aplicativo entre **Menta**, **Oceano**, **Lavanda** e **Esmeralda**.
 - **Aviso de Isenção de Responsabilidade no Primeiro Uso:** Exibe informativo transparente de primeiro uso esclarecendo que o app é um ajudante de rotina criado por desenvolvedores de software e não substitui orientação odontológica profissional.
-- **Lembretes Diários Nativos & Small Badge no Ícone:**
-  - Agendamento de notificações locais diárias recorrentes via `@capacitor/local-notifications`.
-  - Exibição de **badge/ponto de notificação** no ícone do app quando há uma escovação cujo horário já chegou e ainda está pendente, limpando automaticamente ao concluir.
+- **Lembretes Nativos & Small Badge no Ícone:**
+  - Agendamento de notificações locais diárias e lembretes cíclicos via `@capacitor/local-notifications`.
+  - Exibição de **badge/ponto de notificação** no ícone do app quando há uma escovação ou lembrete pendente, limpando automaticamente ao concluir.
 - **Dicas Dinâmicas de Saúde Bucal:**
   - Banco local com 27 dicas odontológicas práticas sorteadas sem repetição sempre que você volta para a tela inicial ou reabre o aplicativo.
 
@@ -77,7 +87,7 @@ O **Arkada** é um aplicativo mobile híbrido (focado em Android e Web/PWA) proj
 | Camada | Tecnologia |
 | :--- | :--- |
 | **Core Frontend** | React 18 + TypeScript + Vite |
-| **Estilização & UI** | Tailwind CSS (Flat Design estrito, Light Mode) + `lucide-react` |
+| **Estilização & UI** | Tailwind CSS (Flat Design estrito, Light/Dark Mode & Temas) + `lucide-react` |
 | **Runtime Nativo** | Capacitor 6 (`@capacitor/core`, `@capacitor/android`) |
 | **Notificações & Badge** | `@capacitor/local-notifications` + `@capawesome/capacitor-badge` |
 | **Feedback Tátil** | `@capacitor/haptics` (com fallback Web `navigator.vibrate`) |
